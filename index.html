@@ -540,7 +540,7 @@
                     updateUIWithPlayer(validPlayer.username);
                     closePopup();
                     showToast('تم تسجيل الدخول!', `أهلاً بك مجدداً يا ${validPlayer.username}`, 'success');
-                    setTimeout(() => { window.location.href = 'profile.html'; }, 1000);
+                    setTimeout(() => { window.location.href = './profile/'; }, 1000);
                 } else {
                     showToast('فشل الدخول!', 'اسم المستخدم أو كلمة المرور غير صحيحة.', 'error');
                 }
