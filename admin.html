@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orion Network - لوحة التحكم</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="icon" type="image/png" href="logo.png">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        body { background-color: #f5f5f7; color: #1d1d1f; min-height: 100vh; padding: 2rem 0; }
+        body.popup-open { overflow: hidden; }
+        .material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24; font-size: 22px; vertical-align: middle; display: inline-block; }
+        
+        /* التنبيهات الجانبية الأنيقة (Toast Notification) */
+        .toast-container { position: fixed; top: 24px; right: -350px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 1rem 1.4rem; border-radius: 18px; display: flex; align-items: center; gap: 12px; z-index: 9999; width: 310px; transition: right 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .toast-container.show { right: 24px; }
+        .toast-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .toast-container.success .toast-icon { background: rgba(52, 199, 89, 0.12); color: #34c759; }
+        .toast-container.error .toast-icon { background: rgba(255, 59, 48, 0.12); color: #ff3b30; }
+        
+        .container { max-width: 1200px; width: 90%; margin: 0 auto; display: flex; flex-direction: column; gap: 2.5rem; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .admin-header h1 { font-size: 1.8rem; font-weight: 700; color: #000; display: flex; align-items: center; gap: 10px; }
+        .btn-back { background: rgba(0,0,0,0.04); color: #1d1d1f; border: none; padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: 600; border-radius: 12px; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .btn-back-red { background: rgba(255, 75, 65, 0.782); color: #ff3b30; }
+        
+        
+        .glass-card { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(30px) saturate(190%); -webkit-backdrop-filter: blur(30px) saturate(190%); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02); border-radius: 24px; padding: 2rem; }
+        .section-title-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1.3rem; font-weight: 700; color: #000; display: flex; align-items: center; gap: 8px; }
+        
+        .btn-action { background: #1d1d1f; color: #fff; border: none; padding: 0.5rem 1.1rem; font-size: 0.88rem; font-weight: 600; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; text-decoration: none; }
+        .btn-action:hover { background: #000; }
+        .btn-edit { background: rgba(0, 122, 255, 0.1); color: #007aff; }
+        .btn-edit:hover { background: rgba(0, 122, 255, 0.2); }
+        .btn-delete { background: rgba(255, 59, 48, 0.1); color: #ff3b30; }
+        .btn-delete:hover { background: rgba(255, 59, 48, 0.2); }
+
+        /* الجداول وقوائم التحكم */
+        .admin-table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.95rem; }
+        th { padding: 1rem; color: #6e6e73; font-weight: 600; border-bottom: 1.5px solid rgba(0,0,0,0.06); }
+        td { padding: 1rem; color: #1d1d1f; border-bottom: 1px solid rgba(0,0,0,0.04); vertical-align: middle; }
+        tr:last-child td { border: none; }
+        
+        @font-face {
+            font-family: 'MinecraftRegular';
+            src: url('MinecraftRegular-Bmg3.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        .player-info-td { display: flex; align-items: center; gap: 10px; }
+        .player-head-avatar { width: 32px; height: 32px; border-radius: 8px; background: rgba(0,0,0,0.02); }
+        .badge { font-family: 'MinecraftRegular', sans-serif;font-size: 0.82rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; background: rgba(0,0,0,0.04); display: inline-block; }
+        .badge.rank-1 { color: #ff9500; background: rgba(255,149,0,0.1); }
+        .badge.rank-2 { color: #8e8e93; background: rgba(142,142,147,0.1); }
+        .badge.rank-3 { color: #ac8e68; background: rgba(172,142,104,0.1); }
+        .badge.rank-none { color: #007aff; background: rgba(0,122,255,0.06); }
+
+        /* النوافذ المنبثقة (Popups) */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s; }
+        .popup-overlay.active { opacity: 1; visibility: visible; }
+        .popup-box { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(30px) saturate(190%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08); width: 90%; max-width: 420px; padding: 2.2rem 2rem; border-radius: 24px; position: relative; transform: scale(0.95); transition: transform 0.3s ease; }
+        .popup-overlay.active .popup-box { transform: scale(1); }
+        .close-popup { position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.04); color: #1d1d1f; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .popup-box h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
+        
+        .input-group { display: flex; flex-direction: column; margin-bottom: 1.2rem; }
+        .input-group label { font-size: 0.88rem; font-weight: 600; color: #515154; margin-bottom: 0.4rem; padding-right: 2px; }
+        .input-group input, .input-group select, .input-group textarea { background: rgba(0, 0, 0, 0.03); border: 1.5px solid transparent; padding: 0.8rem; font-size: 0.95rem; font-weight: 500; border-radius: 12px; outline: none; transition: all 0.2s ease; color: #1d1d1f; }
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus { background: #fff; border-color: #1d1d1f; }
+        .btn-submit { width: 100%; background: #1d1d1f; color: #fff; border: none; padding: 0.85rem; font-size: 0.95rem; font-weight: 600; border-radius: 12px; cursor: pointer; margin-top: 0.5rem; }
+        .btn-submit:hover { background: #000; }
+
+        .actions-cell { display: flex; gap: 8px; }
+
+        @media (max-width: 768px) {
+            .section-title-area { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .btn-action { width: 100%; justify-content: center; }
+        }
+
+        .user-username {
+            font-family: 'MinecraftRegular', sans-serif;
+        }
+
+#passwordPopup.popup-overlay {
+    /* هذا يمنع أي نقر على الخلفية الضبابية */
+    pointer-events: none; 
+}
+
+#passwordPopup .popup-box {
+    /* هذا يعيد تفعيل النقر داخل صندوق الباسورد فقط */
+    pointer-events: auto; 
+}
+    </style>
+</head>
+<body>
+
+<div id="passwordPopup" class="popup-overlay">
+    <div class="popup-box">
+        <div class="input-group">
+            <label for="adminPassInput" class="label">ادخل كلمة المرور</label>
+            <input class="input" type="password" id="adminPassInput" placeholder="••••••••">
+        </div>
+        <button class="btn-submit" onclick="checkAdminPassword()">تسجيل الدخول</button>
+    </div>
+</div>
+
+<script>
+
+const CORRECT_PASS = "2743285"; // استبدلها بكلمة المرور التي تريدها
+
+// دالة التحقق
+function checkAdminPassword() {
+    const input = document.getElementById('adminPassInput').value;
+    if (input === CORRECT_PASS) {
+        document.getElementById('passwordPopup').classList.remove('active');
+        document.getElementById('passwordPopup').style.display = 'none';
+        localStorage.setItem('admin_authenticated', 'true');
+        closePopup('passwordPopup'); showToast('تم تسجيل الدخول');
+    } else {
+        showToast('كلمة المرور خاطئة', '', 'error');
+    }
+}
+
+// التأكد عند فتح الصفحة
+window.addEventListener('load', () => {
+    if (localStorage.getItem('admin_authenticated') !== 'true') {
+        document.getElementById('passwordPopup').classList.add('active');
+        document.getElementById('passwordPopup').style.display = 'flex';
+    }
+});
+
+// زر لتسجيل الخروج من الإدارة
+function logoutAdmin() {
+    localStorage.removeItem('admin_authenticated');
+    location.reload();
+}
+</script>
+
+    <div class="toast-container success" id="toastNotification">
+        <div class="toast-icon"><span class="material-symbols-rounded" id="toastIcon">check_circle</span></div>
+        <div class="toast-content">
+            <h5 id="toastTitle">نجاح العملية</h5>
+            <p id="toastMessage">تم حفظ البيانات وتحديثها بنجاح.</p>
+        </div>
+    </div>
+
+
+    <div class="popup-overlay" id="newsPopup">
+        <div class="popup-box">
+            <button class="close-popup" onclick="closePopup('newsPopup')">&times;</button>
+            <h2 id="newsPopupTitle">إضافة خبر جديد</h2>
+            <form id="newsForm">
+                <input type="hidden" id="newsIndex">
+                <div class="input-group">
+                    <label>عنوان الخبر</label>
+                    <input type="text" id="newsTitle" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>محتوى الخبر أو التحديث</label>
+                    <textarea id="newsDesc" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">حفظ وتحديث</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="playerPopup">
+        <div class="popup-box">
+            <button class="close-popup" onclick="closePopup('playerPopup')">&times;</button>
+            <h2 id="playerPopupTitle">إضافة حساب لاعب</h2>
+            <form id="playerForm">
+                <input type="hidden" id="playerIndex">
+                <div class="input-group">
+                    <label>اسم اللاعب (Username)</label>
+                    <input type="text" id="playerUser" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="text" id="playerPass" required>
+                </div>
+                <div class="input-group">
+                    <label>الرتبة</label>
+                    <select id="playerRank" onchange="updateRankColor(this)">
+                        <option value="member">Member</option>
+                        <option value="elite">Elite</option>
+                        <option value="ultimate">Ultimate</option>
+                        <option value="helper">Helper</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="admin">Admin</option>
+                        <option value="owner">Owner</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">حفظ الحساب</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="activityPopup">
+        <div class="popup-box">
+            <button class="close-popup" onclick="closePopup('activityPopup')">&times;</button>
+            <h2 id="activityPopupTitle">تعديل ساعات التفاعل</h2>
+            <form id="activityForm">
+                <input type="hidden" id="activityIndex">
+                <div class="input-group">
+                    <label>اسم اللاعب</label>
+                    <input type="text" id="activityUser" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>عدد ساعات اللعب والنشاط</label>
+                    <input type="number" id="activityHours" min="0" required>
+                </div>
+                <button type="submit" class="btn-submit">تحديث قائمة النشاط</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="buyersPopup">
+        <div class="popup-box">
+            <button class="close-popup" onclick="closePopup('buyersPopup')">&times;</button>
+            <h2 id="buyersPopupTitle">اضافة/تعديل الداعمين للسيرفر</h2>
+            <form id="buyersForm">
+                <input type="hidden" id="buyersIndex">
+                <div class="input-group">
+                    <label>اسم اللاعب</label>
+                    <input type="text" id="buyerUser" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>التصنيف / المركز</label>
+                    <select id="buyerPosition">
+                        <option value="1">#1</option>
+                        <option value="2">#2</option>
+                        <option value="3">#3</option>
+                        <option value="none">بدون تصنيف</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>الوصف أو الرتبة المشتراة</label>
+                    <input type="text" id="buyerDesc" placeholder="مثال: رتبة ELITE" required>
+                </div>
+                <button type="submit" class="btn-submit">تثبيت وتحديث</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="admin-header">
+            <h1><span class="material-symbols-rounded" style="font-size:32px;">dashboard</span> لوحة التحكم</h1>
+            <a href="index.html" class="btn-back" onclick="logoutAdmin()"><span class="material-symbols-rounded">arrow_forward</span> العودة للموقع</a>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title-area">
+                <div class="section-title"><span class="material-symbols-rounded">sleep</span> حالة السيرفر</div>
+            </div>
+            <div class="admin-table-wrapper">
+
+<style>
+    /* تنسيق مجموعات التحكم */
+.control-group {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+/* تنسيق المدخلات والقوائم لتشبه تصاميم Dashboards */
+.control-group input, .control-group select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #1a1a1a;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.control-group button {
+    background: #55FF55;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.control-group button:hover {
+    background: #44cc44;
+}
+</style>
+
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الحالة</th>
+                            <th>نص الحالة</th>
+                            <th>الاجراءات</th>
+                        </tr>
+                                                    <td>
+<select id="statusType" onchange="applyStatus()" class="control-group select">
+    <option value="online">يعمل (أخضر)</option>
+    <option value="offline">صيانة (أحمر)</option>
+</select>
+                            </td>
+                            <td><input type="text" id="statusTextInput" placeholder="نص الحالة" class="control-group input"></td>
+                            <td><button class="btn-action btn-edit" onclick="saveStatus()"><span class="material-symbols-rounded">save</span></button></td>
+
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+<script>
+function saveStatus() {
+    const type = document.getElementById('statusType').value;
+    const text = document.getElementById('statusTextInput').value;
+
+    // تأكد من استخدام هذه الأسماء بالضبط
+    localStorage.setItem('server_status_type', type);
+    localStorage.setItem('server_status_text', text);
+    
+    showToast('تم حفظ الحالة بنجاح');
+}
+</script>
+
+        <div class="glass-card">
+            <div class="section-title-area">
+                <div class="section-title"><span class="material-symbols-rounded">newspaper</span> إدارة الأخبار والتحديثات</div>
+                <button class="btn-action" onclick="openAddNews()"><span class="material-symbols-rounded">add</span> إضافة خبر جديد</button>
+            </div>
+            <div class="admin-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>عنوان الخبر</th>
+                            <th>المحتوى المختصر</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminNewsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title-area">
+                <div class="section-title"><span class="material-symbols-rounded">manage_accounts</span> قاعدة بيانات اللاعبين (الحسابات)</div>
+                <button class="btn-action" onclick="openAddPlayer()"><span class="material-symbols-rounded">person_add</span> إضافة حساب يدوي</button>
+            </div>
+            <div class="admin-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اللاعب</th>
+                            <th>كلمة المرور</th>
+                            <th>الرتبة في الموقع</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminPlayersTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title-area">
+                <div class="section-title"><span class="material-symbols-rounded" style="color:#007aff;">military_tech</span> إدارة قائمة الأكثر تفاعلاً ونشاطاً</div>
+                <button class="btn-action" onclick="openAddActivity()"><span class="material-symbols-rounded">add</span> إضافة لاعب نشط</button>
+            </div>
+            <div class="admin-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اللاعب</th>
+                            <th>الساعات المسجلة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminActivityTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-title-area">
+                <div class="section-title"><span class="material-symbols-rounded" style="color:#ff9500;">diamond</span> إدارة قائمة الأكثر شراءً ودعماً للشبكة</div>
+                <button class="btn-action" onclick="openAddBuyer()"><span class="material-symbols-rounded">add</span> إضافة لاعب داعم</button>
+            </div>
+            <div class="admin-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اللاعب</th>
+                            <th>المركز والتصنيف</th>
+                            <th>الوصف المكتوب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminBuyersTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة عرض التنبيهات
+        let toastTimeout;
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const tIcon = document.getElementById('toastIcon');
+            const tTitle = document.getElementById('toastTitle');
+            const tMessage = document.getElementById('toastMessage');
+            toast.className = `toast-container ${type}`;
+            tTitle.textContent = title; tMessage.textContent = message;
+            tIcon.textContent = type === 'success' ? 'check_circle' : 'cancel';
+            clearTimeout(toastTimeout);
+            toast.classList.add('show');
+            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // دوال النوافذ المنبثقة العامة
+        function openPopup(id) { document.getElementById(id).classList.add('active'); document.body.classList.add('popup-open'); }
+        function closePopup(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('popup-open'); }
+
+        // تهيئة قواعد البيانات الحية في LocalStorage للتزامن الكامل مع الـ index.html
+        let newsDb = JSON.parse(localStorage.getItem('orion_news') || '[]');
+        let playersDb = JSON.parse(localStorage.getItem('orion_players') || '[]');
+        
+        // جلب بيانات تفاعل اللاعبين المخصصة للسيرفر (إذا لم توجد نضع الافتراضي التلقائي)
+        let activityDb = JSON.parse(localStorage.getItem('orion_top_activity') || JSON.stringify([
+            { username: "Lightning_killer", hours: 140 },
+            { username: "Abo_AlMajd", hours: 112 }
+        ]));
+
+        // جلب بيانات الأكثر شراءً (إذا لم توجد نضع الافتراضي التلقائي)
+        let buyersDb = JSON.parse(localStorage.getItem('orion_top_buyers') || JSON.stringify([
+            { username: "Admin_User", position: "1", desc: "رتبة MVP+" },
+            { username: "CraftMaster", position: "2", desc: "رتبة VIP" }
+        ]));
+
+        // دالة حفظ التغييرات لكل الجداول بـ LocalStorage وإعادة عرضها حياً
+        function saveAllDatabases() {
+            localStorage.setItem('orion_news', JSON.stringify(newsDb));
+            localStorage.setItem('orion_players', JSON.stringify(playersDb));
+            localStorage.setItem('orion_top_activity', JSON.stringify(activityDb));
+            localStorage.setItem('orion_top_buyers', JSON.stringify(buyersDb));
+            renderAllTables();
+        }
+
+        // بناء وعرض الجداول حياً ديناميكياً
+        function renderAllTables() {
+            // أ. جدول الأخبار
+            const newsTable = document.getElementById('adminNewsTable');
+            newsTable.innerHTML = '';
+            newsDb.forEach((news, idx) => {
+                newsTable.innerHTML += `
+                    <tr>
+                        <td><span class="badge">${news.date}</span></td>
+                        <td><strong>${news.title}</strong></td>
+                        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${news.desc}</td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editNews(${idx})"><span class="material-symbols-rounded">edit</span></button>
+                            <button class="btn-action btn-delete" onclick="deleteNews(${idx})"><span class="material-symbols-rounded">delete</span></button>
+                        </td>
+                    </tr>`;
+            });
+
+            // ب. جدول الحسابات
+            const playersTable = document.getElementById('adminPlayersTable');
+            playersTable.innerHTML = '';
+            playersDb.forEach((player, idx) => {
+                playersTable.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="player-info-td">
+                                <img src="https://visage.surgeplay.com/face/64/${player.username}.png" onerror="this.src='https://visage.surgeplay.com/face/64/Steve.png'" class="player-head-avatar">
+                                <span class="user-username">${player.username}</span>
+                            </div>
+                        </td>
+                        <td><code>${player.password}</code></td>
+                        <td><span class="badge" style="background:rgba(0,0,0,0.06); color:#000;">${player.rank}</span></td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editPlayer(${idx})"><span class="material-symbols-rounded">edit</span></button>
+                            <button class="btn-action btn-delete" onclick="deletePlayer(${idx})"><span class="material-symbols-rounded">delete</span></button>
+                        </td>
+                    </tr>`;
+            });
+
+            // ج. جدول الأكثر تفاعلاً
+            const activityTable = document.getElementById('adminActivityTable');
+            activityTable.innerHTML = '';
+            activityDb.forEach((act, idx) => {
+                activityTable.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="player-info-td">
+                                <img src="https://visage.surgeplay.com/face/64/${act.username}.png" onerror="this.src='https://visage.surgeplay.com/face/64/Steve.png'" class="player-head-avatar">
+                                <strong class="user-username">${act.username}</strong>
+                            </div>
+                        </td>
+                        <td><span class="badge rank-none">${act.hours}h</span></td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editActivity(${idx})"><span class="material-symbols-rounded">edit</span></button>
+                            <button class="btn-action btn-delete" onclick="deleteActivity(${idx})"><span class="material-symbols-rounded">delete</span></button>
+                        </td>
+                    </tr>`;
+            });
+
+            // د. جدول الأكثر شراءً والدعم
+            const buyersTable = document.getElementById('adminBuyersTable');
+            buyersTable.innerHTML = '';
+            buyersDb.forEach((buyer, idx) => {
+                let badgeClass = "rank-none";
+                let badgeText = "داعم بدون تصنيف";
+                if(buyer.position === "1") { badgeClass = "rank-1"; badgeText = "#1"; }
+                else if(buyer.position === "2") { badgeClass = "rank-2"; badgeText = "#2"; }
+                else if(buyer.position === "3") { badgeClass = "rank-3"; badgeText = "#3"; }
+
+                buyersTable.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="player-info-td">
+                                <img src="https://visage.surgeplay.com/face/64/${buyer.username}.png" onerror="this.src='https://visage.surgeplay.com/face/64/Steve.png'" class="player-head-avatar">
+                                <strong class="user-username">${buyer.username}</strong>
+                            </div>
+                        </td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td>${buyer.desc}</td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="editBuyer(${idx})"><span class="material-symbols-rounded">edit</span></button>
+                            <button class="btn-action btn-delete" onclick="deleteBuyer(${idx})"><span class="material-symbols-rounded">delete</span></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        /* 🟢 معالجة وتعديل وحدة الأخبار */
+        function openAddNews() {
+            document.getElementById('newsForm').reset();
+            document.getElementById('newsIndex').value = '';
+            document.getElementById('newsPopupTitle').textContent = 'اضافة خبر جديد';
+            openPopup('newsPopup');
+        }
+        function editNews(idx) {
+            document.getElementById('newsIndex').value = idx;
+            document.getElementById('newsTitle').value = newsDb[idx].title;
+            document.getElementById('newsDesc').value = newsDb[idx].desc;
+            document.getElementById('newsPopupTitle').textContent = 'تعديل تفاصيل الخبر';
+            openPopup('newsPopup');
+        }
+        function deleteNews(idx) { if(confirm('هل تريد حذف هذا الخبر نهائياً؟')) { newsDb.splice(idx, 1); saveAllDatabases(); showToast('تم الحذف', 'تم مسح الخبر من السيرفر والموقع بنجاح'); } }
+        document.getElementById('newsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idx = document.getElementById('newsIndex').value;
+            const title = document.getElementById('newsTitle').value.trim();
+            const desc = document.getElementById('newsDesc').value.trim();
+            const currentDate = new Date().toLocaleDateString('zh-Hans-CN');
+
+            if(idx === '') { newsDb.unshift({ title, desc, date: currentDate }); } 
+            else { newsDb[idx].title = title; newsDb[idx].desc = desc; }
+            saveAllDatabases(); closePopup('newsPopup'); showToast('تم الحفظ والتحديث');
+        });
+
+        /* 🔵 معالجة وتعديل وحدة الحسابات */
+        function openAddPlayer() {
+            document.getElementById('playerForm').reset();
+            document.getElementById('playerIndex').value = '';
+            document.getElementById('playerPopupTitle').textContent = 'إضافة حساب لاعب';
+            openPopup('playerPopup');
+        }
+        function editPlayer(idx) {
+            document.getElementById('playerIndex').value = idx;
+            document.getElementById('playerUser').value = playersDb[idx].username;
+            document.getElementById('playerPass').value = playersDb[idx].password;
+            document.getElementById('playerRank').value = playersDb[idx].rank;
+            document.getElementById('playerPopupTitle').textContent = 'تعديل معلومات الحساب';
+            openPopup('playerPopup');
+        }
+        function deletePlayer(idx) { if(confirm('هل أنت متأكد من حذف الحساب؟ لن يستطيع اللاعب الدخول للموقع.')) { playersDb.splice(idx, 1); saveAllDatabases(); showToast('تم الحذف', 'تم سحب الحساب وإسقاط الصلاحيات بنجاح'); } }
+        document.getElementById('playerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idx = document.getElementById('playerIndex').value;
+            const username = document.getElementById('playerUser').value.trim();
+            const password = document.getElementById('playerPass').value;
+            const rank = document.getElementById('playerRank').value;
+
+            if(idx === '') { playersDb.push({ username, password, rank }); } 
+            else { playersDb[idx].username = username; playersDb[idx].password = password; playersDb[idx].rank = rank; }
+            saveAllDatabases(); closePopup('playerPopup'); showToast('تم تحديث الحسابات');
+        });
+
+        /* 🟣 معالجة وتعديل اللاعبين الأكثر تفاعلاً */
+        function openAddActivity() {
+            document.getElementById('activityForm').reset();
+            document.getElementById('activityIndex').value = '';
+            document.getElementById('activityPopupTitle').textContent = 'إضافة لاعب نشط لقائمة التفاعل';
+            openPopup('activityPopup');
+        }
+        function editActivity(idx) {
+            document.getElementById('activityIndex').value = idx;
+            document.getElementById('activityUser').value = activityDb[idx].username;
+            document.getElementById('activityHours').value = activityDb[idx].hours;
+            document.getElementById('activityPopupTitle').textContent = 'تعديل ساعات النشاط';
+            openPopup('activityPopup');
+        }
+        function deleteActivity(idx) { if(confirm('حذف هذا اللاعب من لوحة الشرف للأكثر تفاعلاً؟')) { activityDb.splice(idx, 1); saveAllDatabases(); showToast('تم الحذف', 'تم إزالة اللاعب من قائمة النشاط الحالية'); } }
+        document.getElementById('activityForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idx = document.getElementById('activityIndex').value;
+            const username = document.getElementById('activityUser').value.trim();
+            const hours = parseInt(document.getElementById('activityHours').value);
+
+            if(idx === '') { activityDb.push({ username, hours }); } 
+            else { activityDb[idx].username = username; activityDb[idx].hours = hours; }
+            
+            // ترتيب تلقائي من الأعلى نشاطاً للأقل ساعات
+            activityDb.sort((a, b) => b.hours - a.hours);
+            
+            saveAllDatabases(); closePopup('activityPopup'); showToast('تم تعديل ساعات اللعب');
+        });
+
+        /* 🟠 معالجة وتعديل الأكثر شراءً ودعماً (الأول، الثاني، الثالث، أو بدون تصنيف) */
+        function openAddBuyer() {
+            document.getElementById('buyersForm').reset();
+            document.getElementById('buyersIndex').value = '';
+            document.getElementById('buyersPopupTitle').textContent = 'إضافة داعم جديد';
+            openPopup('buyersPopup');
+        }
+        function editBuyer(idx) {
+            document.getElementById('buyersIndex').value = idx;
+            document.getElementById('buyerUser').value = buyersDb[idx].username;
+            document.getElementById('buyerPosition').value = buyersDb[idx].position;
+            document.getElementById('buyerDesc').value = buyersDb[idx].desc;
+            document.getElementById('buyersPopupTitle').textContent = 'تعديل داعم';
+            openPopup('buyersPopup');
+        }
+        function deleteBuyer(idx) { if(confirm('هل تريد حذف اللاعب من قائمة الداعمين بالموقع؟')) { buyersDb.splice(idx, 1); saveAllDatabases(); showToast('تم الحذف', 'تم إزالته من قائمة الدعم المالي والشرائي'); } }
+        document.getElementById('buyersForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idx = document.getElementById('buyersIndex').value;
+            const username = document.getElementById('buyerUser').value.trim();
+            const position = document.getElementById('buyerPosition').value;
+            const desc = document.getElementById('buyerDesc').value.trim();
+
+            if(idx === '') { buyersDb.push({ username, position, desc }); } 
+            else { buyersDb[idx].username = username; buyersDb[idx].position = position; buyersDb[idx].desc = desc; }
+            
+            // دالة ترتيب ذكية: تضع المراكز 1 ثم 2 ثم 3 بالأعلى، ثم تضع الباقي (none) بالأسفل
+            buyersDb.sort((a, b) => {
+                const posA = a.position === 'none' ? 99 : parseInt(a.position);
+                const posB = b.position === 'none' ? 99 : parseInt(b.position);
+                return posA - posB;
+            });
+
+            saveAllDatabases(); closePopup('buyersPopup'); showToast('تم تعديل رتبة الداعمين');
+        });
+
+        // تشغيل البناء الأولي للجداول فور تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            // للتأكد من وجود مصفوفة حسابات افتراضية في حال كانت فارغة بالكامل
+            if(localStorage.getItem('orion_players') === null) {
+                const defaultPlayers = [
+                    { username: "Lightning_killer", password: "123", rank: "Player" },
+                    { username: "Abo_AlMajd", password: "456", rank: "VIP" },
+                    { username: "Admin_User", password: "789", rank: "Owner" }
+                ];
+                localStorage.setItem('orion_players', JSON.stringify(defaultPlayers));
+                playersDb = defaultPlayers;
+            }
+            renderAllTables();
+        });
+
+// نقوم بإضافة مستمع (Event Listener) لكل النوافذ المنبثقة
+document.querySelectorAll('.popup-overlay').forEach(popup => {
+    popup.addEventListener('click', function(e) {
+        // إذا كان الشخص نقر على الخلفية (الـ overlay) وليس على محتوى النافذة نفسه
+        if (e.target === this) {
+            // نغلق النافذة عن طريق تمرير الـ ID الخاص بها
+            closePopup(this.id);
+        }
+    });
+}); 
+    </script>
+</body>
+</html>
