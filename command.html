@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Orion Network - الأوامر</title>
+    
+    <!-- ⚡ تسريع تحميل أيقونات وخطوط جوجل لمنع أي تعليق في الموقع -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="/style.css">
+    
+    <style>
+        /* 🎮 خط ماينكرافت الخاص بالسيرفر */
+        @font-face {
+            font-family: 'MinecraftRegular';
+            src: url('MinecraftRegular-Bmg3.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 🎨 المتغيرات اللونية وثيم الزجاج الفاخر */
+        :root {
+            --orion-yellow: #FFAA00;
+            --orion-yellow-hover: #f6a80c;
+            --bg-dark-card: #111111;
+            --border-dark: #2d2d2d;
+            --text-muted: #86868b;
+            --transition-epic: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* 🪟 متغيرات الزجاج (Glassmorphism) */
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-blur: blur(20px) saturate(190%);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'IBM Plex Sans Arabic', sans-serif; 
+        }
+        
+        body { 
+            padding: 7rem 1rem 4.5rem 1rem;
+            color: #1d1d1f; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-x: hidden; 
+            background: radial-gradient(circle at 0% 0%, rgba(255, 170, 0, 0.04) 0%, transparent 40%),
+                        radial-gradient(circle at 100% 100%, rgba(0, 170, 170, 0.02) 0%, transparent 40%),
+                        #f6f6f9;
+        }
+
+        .wide-container { 
+            max-width: 950px; 
+            width: 100%; 
+            margin: 2rem auto 1.5rem auto; 
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: #1d1d1f;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -1px;
+        }
+        
+        .page-header h1 .title-icon {
+            font-size: 2.6rem;
+            color: #1d1d1f;
+        }
+
+        /* 🔍 شريط البحث الزجاجي الاحترافي */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 2.5rem auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-radius: 18px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            outline: none;
+            color: #1d1d1f;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02);
+            transition: var(--transition-epic);
+        }
+
+        .search-input:focus {
+            background: #fff;
+            border-color: var(--orion-yellow);
+            box-shadow: 0 12px 40px rgba(255, 170, 0, 0.12);
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            pointer-events: none;
+            transition: var(--transition-epic);
+        }
+        .search-input:focus + .search-icon {
+            color: var(--orion-yellow);
+        }
+
+        /* 👑 شريط تبديل الأقسام الزجاجي */
+        .cmd-nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px;
+            border-radius: 20px;
+            margin-bottom: 2.5rem;
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.75rem 2.2rem;
+            background: transparent;
+            border: none;
+            border-radius: 14px;
+            color: #515154;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-epic);
+        }
+
+        .tab-btn:hover {
+            color: #000;
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: #1d1d1f;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .cmd-panel { display: none; }
+        .cmd-panel.active { display: block; }
+
+        /* 🏛️ هيكل الأكورديون الزجاجي الفخم للأوامر */
+        .accordion-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .accordion-item {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition-epic);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+        }
+
+        .accordion-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 170, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(255, 170, 0, 0.04);
+        }
+
+        .accordion-header {
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            gap: 20px;
+        }
+
+        .cmd-short-desc {
+            font-size: 1rem;
+            color: #1d1d1f;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .cmd-left-zone {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .cmd-badge {
+            font-family: 'MinecraftRegular', sans-serif !important;
+            background: #1d1d1f;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            direction: ltr;
+            letter-spacing: 0.5px;
+            transition: var(--transition-epic);
+        }
+        
+        .accordion-item:hover .cmd-badge {
+            background: var(--orion-yellow);
+        }
+
+        .arrow-icon {
+            color: var(--text-muted);
+            transition: var(--transition-epic);
+            font-size: 1.6rem;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .accordion-content-inner {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* 📋 حاوية نسخ الأمر الذكية */
+        .cmd-syntax-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .cmd-syntax-box {
+            width: 100%;
+            background: var(--bg-dark-card);
+            border: 2px solid var(--border-dark);
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.8);
+            border-radius: 12px;
+            padding: 14px 60px 14px 16px;
+            font-size: 1rem;
+            color: #ffff55;
+            text-shadow: 2px 2px 0px #000;
+            direction: ltr;
+            font-family: 'MinecraftRegular', sans-serif !important;
+        }
+
+        /* ⚡ زر النسخ الفخم المدمج */
+        .copy-cmd-btn {
+            position: absolute;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-epic);
+        }
+
+        .copy-cmd-btn:hover {
+            background: var(--orion-yellow);
+            color: #111;
+            border-color: var(--orion-yellow);
+            transform: scale(1.05);
+        }
+
+        .copy-cmd-btn .btn-icon {
+            font-size: 1.2rem;
+        }
+
+        /* صفوف التفاصيل والأمثلة */
+        .cmd-details-row {
+            font-size: 0.92rem;
+            color: #3a3a3c;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .cmd-details-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1d1d1f;
+            font-weight: 800;
+        }
+
+        .cmd-examples-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-right: 4px;
+        }
+
+        /* ستايل نصوص الأمثلة الماينكرافتية */
+        .cmd-example-highlight {
+            font-family: 'MinecraftRegular', sans-serif !important;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 5px 12px;
+            border-radius: 8px;
+            color: #00aaaa;
+            font-size: 0.88rem;
+            direction: ltr;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        /* حالة الفتح النشطة */
+        .accordion-item.open .arrow-icon {
+            transform: rotate(180deg);
+            color: var(--orion-yellow);
+        }
+        .accordion-item.open {
+            border-color: rgba(255, 170, 0, 0.4);
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        .no-results {
+            display: none;
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .navbar-player-plate {
+            display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(145deg, #1e1e1e, #111111);
+            border: 1px solid var(--border-dark); padding: 6px 14px; border-radius: 14px;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.5); cursor: pointer; transition: var(--transition-epic);
+        }
+        .navbar-player-plate:hover { transform: translateY(-2px); border-color: var(--orion-yellow); box-shadow: 0 4px 15px rgba(255,170,0,0.2); }
+        .navbar-player-plate img { width: 26px; height: 26px; background: #2a2a2a; border-radius: 6px; image-rendering: pixelated; }
+        .navbar-player-plate span { font-family: 'MinecraftRegular', sans-serif !important; color: #fff; font-size: 0.85rem; text-shadow: 1px 1px 0px #000; }
+
+        @media (max-width: 768px) {
+            body { padding-top: 6.5rem; }
+            .page-header h1 { font-size: 1.8rem; }
+            .cmd-nav-tabs { padding: 6px; border-radius: 16px; }
+            .tab-btn { padding: 0.6rem 1.2rem; font-size: 0.88rem; border-radius: 12px; }
+            .accordion-header { padding: 1.1rem 1.2rem; gap: 12px; }
+            .cmd-short-desc { font-size: 0.95rem; }
+            .cmd-badge { font-size: 0.8rem; padding: 4px 10px; }
+            .cmd-examples-container { flex-direction: column; width: 100%; gap: 6px; }
+            .cmd-example-highlight { width: 100%; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر العلوي الموحد للموقع -->
+    <style>
+        .glass-header { width: 100%; position: absolute; background: transparent; top: 0; z-index: 100; }
+        header { max-width: 1300px; margin: 0 auto; width: 90%; padding: 0.8rem 0; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.3rem; font-weight: 700; color: #1d1d1f; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-img { width: 32px; height: 32px; }
+        .nav-links { display: flex; gap: 2.2rem; align-items: center; list-style: none; }
+        .nav-links a { color: rgba(0, 0, 0, 0.65); text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: color 0.25s ease; }
+        .nav-links a:hover { color: var(--orion-yellow); }
+        .header-actions { display: flex; align-items: center; gap: 1rem; }
+        .nav-links a.active-link { color: var(--orion-yellow); font-weight: 700; }
+    </style>
+
+    <div class="glass-header">
+        <header>
+            <a href="/" class="logo">
+                <img src="/logo.png" class="logo-img" alt="Orion Logo">
+                <span>Orion Network</span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="shop.html">المتجر</a></li>
+                <li><a href="commands.html" class="active-link">الاوامر</a></li>
+
+            </ul>
+
+            <div class="header-actions" id="navActionsArea"></div>
+        </header>
+    </div>
+
+    <div class="wide-container">
+        
+        <div class="page-header">
+            <h1><span class="material-symbols-rounded title-icon">terminal</span> أوامر سيرفر الماينكرافت</h1>
+        </div>
+
+        <!-- 🔍 حقل البحث الذكي -->
+        <div class="search-wrapper">
+            <input type="text" id="cmdSearch" class="search-input" placeholder="ابحث عن أمر، وصف، أو كلمة مفتاحية...">
+            <span class="material-symbols-rounded search-icon">search</span>
+        </div>
+
+        <!-- 👑 شريط التابات -->
+        <nav class="cmd-nav-tabs">
+            <button class="tab-btn active" onclick="switchCmdTab(event, 'main-cmds')">
+                <span class="material-symbols-rounded">construction</span> الرئيسية
+            </button>
+            <button class="tab-btn" onclick="switchCmdTab(event, 'dominion-cmds')">
+                <span class="material-symbols-rounded">shield</span> دومينون
+            </button>
+            <button class="tab-btn" onclick="switchCmdTab(event, 'blockti-cmds')">
+                <span class="material-symbols-rounded">grid_view</span> بلوكتي
+            </button>
+        </nav>
+
+        <!-- 🏛️ لوحات عرض الأوامر -->
+        <main>
+            <div id="main-cmds" class="cmd-panel active">
+                <div class="accordion-wrapper" id="main-cmds-list"></div>
+                <div class="no-results" id="main-no-results">لا توجد أوامر مطابقة للبحث في هذا القسم.</div>
+            </div>
+
+            <div id="dominion-cmds" class="cmd-panel">
+                <div class="accordion-wrapper" id="dominion-cmds-list"></div>
+                <div class="no-results" id="dominion-no-results">لا توجد أوامر مطابقة للبحث في هذا القسم.</div>
+            </div>
+
+            <div id="blockti-cmds" class="cmd-panel">
+                <div class="accordion-wrapper" id="blockti-cmds-list"></div>
+                <div class="no-results" id="blockti-no-results">لا توجد أوامر مطابقة للبحث في هذا القسم.</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 🧠 محرك الجافاسكريبت للأوامر والبحث والنسخ الفوري -->
+    <script>
+        const commandsData = {
+            "main-cmds": [
+                { cmd: "/afk", desc: "تجعلك بصيغة الأفك", syntax: "/afk", examples: ["/afk"] },
+                { cmd: "/discord", desc: "اعطائك رابط لسيرفر الديسكورد الخاص بنا", syntax: "/discord", examples: ["/discord"] },
+                { cmd: "/fly", desc: "تفعيل ميزة الطيران", syntax: "/fly", examples: ["/fly"] },
+                { cmd: "/glow", desc: "تفعيل ميزة الاضاءة حول سكن اللاعب", syntax: "/glow", examples: ["/glow"] },
+                { cmd: "/level", desc: "لعرض مستواك او مستوى شخص ما", syntax: "/level", examples: ["/level", "/level <player>" , "/level Lightning_killer"] },
+                { cmd: "/login", desc: "تسجيل الدخول في السيرفر", syntax: "/login", examples: ["/login <password>", "/login 2875595"] },
+                { cmd: "/ping", desc: "عرض سرعة اتصالك الحالية", syntax: "/ping", examples: ["/ping"] },
+                { cmd: "/redeem", desc: "تحصيل كود قد اهدي لك من احد", syntax: "/redeem", examples: ["/redeem <code>", "/redeem ORION-RS951-6510V-DPDPV"] }				
+            ],
+            "dominion-cmds": [
+                { cmd: "/anvil", desc: "فتح شاشة الانفل باختصار", syntax: "/anvil", examples: ["/anvil"] },
+                { cmd: "/ah", desc: "فتح المزاد بين اللاعبين لبيع الاغراض", syntax: "/ah", examples: ["/ah", "/ah sell"] },
+                { cmd: "/coins", desc: "لعرض الكوينز الخاص بك او كوينز شخص اخر", syntax: "/coins", examples: ["/coins", "/coins <player>", "/coins Lightning_killer" ] },
+                { cmd: "/co", desc: "لتأسيس شركة خاصة بك في اللعبة", syntax: "/co", examples: ["/co create <name>", "/co deposit <amount>" ] },
+                { cmd: "/craft", desc: "فتح شاشة الكرافتينغ تيبل باختصار", syntax: "/craft", examples: ["/craft", "/workbench", "/wb" ] },
+                { cmd: "/enchantingtable", desc: "لفتح شاشة الاينشانتغ تيبل باختصار", syntax: "/enchantingtable", examples: ["/et", "/enchanttable" ] },
+                { cmd: "/home", desc: "العودة الى منزلك في اللعبة", syntax: "/home", examples: ["/home" ] },
+                { cmd: "/sethome", desc: "تثبيت مكان منزلك في اللعبة", syntax: "/sethome", examples: ["/sethome" ] },
+                { cmd: "/setloc", desc: "انشاء منطقة باسم في العالم", syntax: "/setloc", examples: ["/setloc <name>", "/setloc village" ] },
+                { cmd: "/location", desc: "الانتقال الى منطقة قمت بانشائها", syntax: "/location", examples: ["/location <name>", "/loc <name>", "/loc village" ] },
+                { cmd: "/locations", desc: "عرض قائمة بالمناطق التي قمت بانشائها", syntax: "/locations", examples: ["/locations", "/locs" ] },
+                { cmd: "/deletelocation", desc: "حذف منطقة قمت بانشائها", syntax: "/deletelocation", examples: ["/deletelocation <name>", "/delloc <name>", "/delloc village" ] },
+                { cmd: "/sell", desc: "لبيع الاغراض التي بيدك بكمية او كلها", syntax: "/sell", examples: ["/sell", "/sell <amount>", "/sell 20" ] },
+                { cmd: "/tpa", desc: "انشاء طلب انتقال الى شخص ما", syntax: "/tpa", examples: ["/tpa <player>", "/tpa Lightning_killer" ] },
+                { cmd: "/tpaccept", desc: "قبول طلب انتقال شخص ما إليك", syntax: "/tpaccept", examples: ["/tpaccept <player>", "/tpaccept Lightning_killer" ] },
+                { cmd: "/tpdeny", desc: "رفض طلب انتقال شخص ما إليك", syntax: "/tpdeny", examples: ["/tpdeny <player>", "/tpaccept Just_AhMeD_", "/tpacancel <player>" ] },
+                { cmd: "/trash", desc: "فتح سلة مهملات للايتمات كافة", syntax: "/trash", examples: ["/trash" ] },
+                { cmd: "/ec", desc: "فتح الإندر شيست الخاص بك", syntax: "/ec", examples: ["/ec" ] }
+				
+            ],
+            "blockti-cmds": [
+                { cmd: "/baty leave", desc: "الخروج من الدور الحالي", syntax: "/baty leave", examples: ["/baty leave" ] },
+            ]
+        };
+
+        function renderAllCommands() {
+            for (const [category, cmds] of Object.entries(commandsData)) {
+                const listContainer = document.getElementById(`${category}-list`);
+                if (!listContainer) continue;
+                
+                listContainer.innerHTML = cmds.map((c, index) => `
+                    <div class="accordion-item" data-search-string="${c.cmd.toLowerCase()} ${c.desc.toLowerCase()}">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <!-- اليمين -->
+                            <span class="cmd-short-desc">${c.desc}</span>
+                            
+                            <!-- اليسار -->
+                            <div class="cmd-left-zone">
+                                <span class="cmd-badge">${c.cmd}</span>
+                                <span class="material-symbols-rounded arrow-icon">keyboard_arrow_down</span>
+                            </div>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-content-inner">
+                                <!-- 📋 صندوق الكود مع زر النسخ -->
+                                <div class="cmd-syntax-wrapper">
+                                    <div class="cmd-syntax-box">${c.syntax}</div>
+                                    <button class="copy-cmd-btn" onclick="copyToClipboard('${c.syntax}', this)" title="نسخ الأمر">
+                                        <span class="material-symbols-rounded btn-icon">content_copy</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- 💡 كتل الأمثلة الثنائية المحدثة -->
+                                <div class="cmd-details-row">
+                                    <div class="cmd-details-title">
+                                        <span class="material-symbols-rounded" style="font-size:1.1rem; color:var(--orion-yellow);">lightbulb</span>
+                                        <strong>أمثلة للاستخدام:</strong>
+                                    </div>
+<div class="cmd-examples-container">
+        ${c.examples.map(ex => `<span class="cmd-example-highlight">${ex}</span>`).join('')}
+    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 3. وظيفة النسخ التلقائي الذكي للحافظة وتنظيف الأقواس المزعجة
+        function copyToClipboard(textToCopy, buttonElement) {
+            const cleanText = textToCopy.replace(/[<>[\]]/g, '').trim();
+            
+            navigator.clipboard.writeText(cleanText).then(() => {
+                const icon = buttonElement.querySelector('.btn-icon');
+                
+                icon.textContent = 'check';
+                buttonElement.style.background = '#22c55e';
+                buttonElement.style.borderColor = '#22c55e';
+                buttonElement.style.color = '#fff';
+                
+                setTimeout(() => {
+                    icon.textContent = 'content_copy';
+                    buttonElement.style.background = '';
+                    buttonElement.style.borderColor = '';
+                    buttonElement.style.color = '';
+                }, 1800);
+            }).catch(err => {
+                console.error('فشل في النسخ: ', err);
+            });
+        }
+
+        // 4. منطق الأكورديون
+        function toggleAccordion(headerElement) {
+            const currentItem = headerElement.parentElement;
+            const content = headerElement.nextElementSibling;
+            const isOpen = currentItem.classList.contains('open');
+            
+            currentItem.parentElement.querySelectorAll('.accordion-item').forEach(item => {
+                if(item !== currentItem) {
+                    item.classList.remove('open');
+                    item.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            if (!isOpen) {
+                currentItem.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+                currentItem.classList.remove('open');
+                content.style.maxHeight = null;
+            }
+        }
+
+        // 5. تبديل التابات
+        function switchCmdTab(event, panelId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.querySelectorAll('.cmd-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            
+            executeLiveSearch();
+        }
+
+        // 6. محرك البحث اللحظي
+        const searchInput = document.getElementById('cmdSearch');
+        searchInput.addEventListener('input', executeLiveSearch);
+
+        function executeLiveSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            const activePanel = document.querySelector('.cmd-panel.active');
+            const items = activePanel.querySelectorAll('.accordion-item');
+            const noResultsMessage = activePanel.querySelector('.no-results');
+            let hasVisibleItems = false;
+
+            items.forEach(item => {
+                const searchPool = item.getAttribute('data-search-string');
+                if (searchPool.includes(query)) {
+                    item.style.display = 'block';
+                    hasVisibleItems = true;
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('open');
+                    item.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            if (hasVisibleItems) {
+                noResultsMessage.style.display = 'none';
+            } else {
+                noResultsMessage.style.display = 'block';
+            }
+        }
+
+        // 7. جلب سكن اللاعب من الـ LocalStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAllCommands();
+            
+            const cachedUser = localStorage.getItem('orion_mc_user');
+            const navActionsArea = document.getElementById('navActionsArea');
+            
+            if (cachedUser && navActionsArea) {
+                navActionsArea.innerHTML = `
+                    <div class="navbar-player-plate" onclick="window.location.href='/shop'">
+                        <img src="https://mc-heads.net/avatar/${cachedUser}" alt="Skin">
+                        <span>${cachedUser}</span>
+                    </div>
+                `;
+            }
+        });
+    </script>
+
+    <!-- الفوتر السفلي للموقع -->
+    <footer style="margin-top: auto; padding: 2rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid rgba(0,0,0,0.03);">
+        <p>لا يتبع لشركة موجانغ، &copy; 2026 Orion Network. جميع الحقوق محفوظة.</p>
+    </footer>
+
+</body>
+</html>
